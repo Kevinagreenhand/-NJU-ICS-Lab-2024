@@ -1,15 +1,15 @@
 #include "asm.h"
 #include <string.h>
+#include<stdio.h>
 
 int64_t asm_add(int64_t a, int64_t b) {
-  int64_t result=0;
   asm(
         "addq %[b], %[a]"
-        : [a] "+r"(result)
+        : [a] "+r"(a)
         : [b] "r"(b)
         : 
     );
-  return result;
+  return a;
 }
 
 int asm_popcnt(uint64_t x) {
