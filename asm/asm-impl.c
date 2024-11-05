@@ -2,14 +2,18 @@
 #include <string.h>
 
 int64_t asm_add(int64_t a, int64_t b) {
-asm("addq %[c], %[d];"
-: [c] "+r"(a)
-: [d] "r"(b));
-  return 0;
+  int64_t result=0;
+  asm(
+        "addq %[b], %[a]"
+        : [a] "+r"(result)
+        : [b] "r"(b)
+        : 
+    );
+  return result;
 }
 
 int asm_popcnt(uint64_t x) {
-  int s = 0;
+int s = 0;
 asm (
 "xorl %[s], %[s];"
 "movq %[x], %[c];"
