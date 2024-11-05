@@ -43,7 +43,6 @@ void *asm_memcpy(void *dest, const void *src, size_t n) {
 
 int asm_setjmp(asm_jmp_buf env) {
     uint64_t tmp1=0;
-    uint64_t tmp2=0;
     asm(
         "push %%rbp;"
         "mov %%rsp, %%rbp;"
@@ -53,9 +52,7 @@ int asm_setjmp(asm_jmp_buf env) {
         "add $0x10, %[tmp1]"
         "movq %[tmp1], %[b];"
         "movq %%rbx, %[c];"
-        "movq %%rbp, %[tmp2]"
-        "add $0x8, %[tmp2]"
-        "movq (%[tmp2]), %[tmp1];"
+        "movq 0x8(%%rbp), %[tmp1];"
         "movq %[tmp1], %[d];"
         "movq %%r12, %[e];"
         "movq %%r13, %[f];"
@@ -64,7 +61,7 @@ int asm_setjmp(asm_jmp_buf env) {
         "pop %%rbp;"
         : [a] "=m"(env[0]), [b] "=m"(env[1]), [c] "=m"(env[2]),
           [d] "=m"(env[3]), [e] "=m"(env[4]), [f] "=m"(env[5]),
-          [g] "=m"(env[6]), [h] "=m"(env[7]),[tmp1] "=&r"(tmp1), [tmp2] "=&r"(tmp2)
+          [g] "=m"(env[6]), [h] "=m"(env[7]),[tmp1] "=&r"(tmp1)
         :
         : "memory","rbp"
     );
