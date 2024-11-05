@@ -16,16 +16,16 @@ int asm_popcnt(uint64_t x) {
 int s = 0;
 asm (
 "xorl %[s], %[s];"
-"movq %[x], %[c];"
+"movq %[x], %[a];"
 "1:;"
-"testq %[c], %[c];"
+"testq %[a], %[a];"
 "jz 2f;"
-"bt $0, %[c];"
-"adc $0, %[s];"
-"shrq $1, %[c];"
+"bt 0x0, %[a];"
+"adc 0x0, %[s];"
+"shrq 0x1, %[a];"
 "jmp 1b;"
 "2:;"
-: [s] "+r"(s), [c] "=&r"(x)
+: [s] "+r"(s), [a] "=&r"(x)
 : [x] "r"(x)
 );
   return s;
@@ -42,23 +42,33 @@ void *asm_memcpy(void *dest, const void *src, size_t n) {
 }
 
 int asm_setjmp(asm_jmp_buf env) {
-    int s = 0;
-  uint64_t x=99;
-asm (
-"xorl %[s], %[s];"
-"movq %[x], %[c];"
-"1:;"
-"testq %[c], %[c];"
-"jz 2f;"
-"bt $0, %[c];"
-"adc $0, %[s];"
-"shrq $1, %[c];"
-"jmp 1b;"
-"2:;"
-: [s] "+r"(s), [c] "=&r"(x)
-: [x] "r"(x)
-);
-  return s;
+    uint64_t tmp1=0;
+    uint64_t tmp2=0;
+    asm(
+        "push %%rbp;"
+        "mov %%rsp, %%rbp;"
+        "movq (%%rbp), %[tmp1];"
+        "movq %[tmp1], %[a];"
+        "movq %%rsp, %[tmp1];"
+        "add 0x10, %[tmp1]"
+        "movq %[tmp1], %[b];"
+        "movq %%rbx, %[c];"
+        "movq %%rbp, %[tmp2]"
+        "add 0x8, %[tmp2]"
+        "movq (%[tmp2]), %[tmp1];"
+        "movq %[tmp1], %[d];"
+        "movq %%r12, %[e];"
+        "movq %%r13, %[f];"
+        "movq %%r14, %[g];"
+        "movq %%r15, %[h];"
+        "pop %%rbp;"
+        : [a] "=m"(env[0]), [b] "=m"(env[1]), [c] "=m"(env[2]),
+          [d] "=m"(env[3]), [e] "=m"(env[4]), [f] "=m"(env[5]),
+          [g] "=m"(env[6]), [h] "=m"(env[7])
+        :[tmp1] "=&r"(tmp1), [tmp2] "=&r"(tmp2)
+        : "memory","rbp"
+    );
+    return 0;
 }
 
 void asm_longjmp(asm_jmp_buf env, int val) {
