@@ -62,8 +62,7 @@ int asm_setjmp(asm_jmp_buf env) {
         "pop %%rbp;"
         : [a] "=m"(env[0]), [b] "=m"(env[1]), [c] "=m"(env[2]),
           [d] "=m"(env[3]), [e] "=m"(env[4]), [f] "=m"(env[5]),
-          [g] "=m"(env[6]), [h] "=m"(env[7]), [tmp1] "=&r"(tmp1),
-          [tmp2] "=&r"(tmp2)
+          [g] "=m"(env[6]), [h] "=m"(env[7]), [tmp1] "=&r"(tmp1)
         :
         : "memory","rbp","rax"
     );
