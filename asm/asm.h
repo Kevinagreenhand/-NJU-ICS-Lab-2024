@@ -1,9 +1,16 @@
 #include <stdint.h>
 #include <stddef.h>
 
-// TODO: replace with your definition
-#include <setjmp.h> // remove this
-#define asm_jmp_buf jmp_buf
+typedef struct {
+    uint64_t ebx;
+    uint64_t ecx;
+    uint64_t edx;
+    uint64_t esi;
+    uint64_t edi;
+    uint64_t ebp;
+    uint64_t esp;
+    uint64_t eip;
+} asm_jmp_buf;
 
 int64_t asm_add(int64_t a, int64_t b);
 int     asm_popcnt(uint64_t x);
