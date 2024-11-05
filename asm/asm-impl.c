@@ -42,7 +42,23 @@ void *asm_memcpy(void *dest, const void *src, size_t n) {
 }
 
 int asm_setjmp(asm_jmp_buf env) {
-  return 0;
+    int s = 0;
+  uint64_t x=99;
+asm (
+"xorl %[s], %[s];"
+"movq %[x], %[c];"
+"1:;"
+"testq %[c], %[c];"
+"jz 2f;"
+"bt $0, %[c];"
+"adc $0, %[s];"
+"shrq $1, %[c];"
+"jmp 1b;"
+"2:;"
+: [s] "+r"(s), [c] "=&r"(x)
+: [x] "r"(x)
+);
+  return s;
 }
 
 void asm_longjmp(asm_jmp_buf env, int val) {
