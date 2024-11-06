@@ -46,10 +46,10 @@ int asm_setjmp(asm_jmp_buf env) {
     uint64_t tmp=0;
     asm volatile(
     //由于不太熟练，写的有点丑陋复杂，请助教老师读完我的注释再看代码
-    //使用默认存第一个参数的rdi存env，rax类似tmp变量
+    //使用默认存第一个参数的rdi存env，rax类似tmp变量(用方括号形式代替rax也会错，原因未知)
     //把add和mov合成一条mov会报错，原因不清楚
 
-    //待完善，如果用方括号形式让gcc分配8个寄存器代表env的8个元素，会出现段错误，set_jmp返回值无法修改
+    //待完善，如果用方括号形式让gcc分配8个寄存器代表env的8个元素，会出现段错误（超时），set_jmp返回值无法修改
     //初步怀疑gcc分配寄存器出现问题，导致某个或者某几个寄存器被重复使用
       "push %%rbp;"
       "mov %%rsp,%%rbp;"
@@ -84,7 +84,7 @@ void asm_longjmp(asm_jmp_buf env, int val) {
   //使用默认存第一个参数的rdi存env，存第二个参数的rsi存val
   //通过改rax的方式让set_jmp返回val值，改完rax之后rsi没用了，又用它存env里的pc值来跳转
 
-  //待完善，如果用方括号形式让gcc分配8个寄存器代表env的8个元素，会出现段错误，set_jmp返回值无法修改
+  //待完善，如果用方括号形式让gcc分配8个寄存器代表env的8个元素，会出现段错误（超时），set_jmp返回值无法修改
   //初步怀疑gcc分配寄存器出现问题，导致某个或者某几个寄存器被重复使用
   //把add和mov合成一条mov会报错，原因不清楚
   uint64_t tmp=0;
