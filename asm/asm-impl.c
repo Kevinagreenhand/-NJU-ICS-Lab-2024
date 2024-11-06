@@ -62,7 +62,7 @@ int asm_setjmp(asm_jmp_buf env) {
           [d] "=m"(env[3]), [e] "=m"(env[4]), [f] "=m"(env[5]),
           [g] "=m"(env[6]), [h] "=m"(env[7])
         :
-        : "memory","rbp","rax"
+        : "memory","rax"
     );
     return 0;
 }
@@ -83,7 +83,7 @@ void asm_longjmp(asm_jmp_buf env, int val) {
     :[a] "m" (env[0]), [b] "m" (env[1]), [c] "m" (env[2]),
     [d] "m" (env[3]), [e] "m" (env[4]), [f] "m" (env[5]),
     [g] "m" (env[6]), [h] "m" (env[7]),[i] "m" (val)
-    : "rbx", "r12", "r13", "r14", "r15", "rbp",  "rax","rsi"
+    : "rbx", "r12", "r13", "r14", "r15", "rbp",  "rax","rdi"
   );
   return;
 }
