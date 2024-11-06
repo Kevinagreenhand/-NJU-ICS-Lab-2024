@@ -43,6 +43,7 @@ asm (
 }
 
 int asm_setjmp(asm_jmp_buf env) {
+    uint64_t tmp=0;
     asm volatile(
     //由于不太熟练，写的有点丑陋复杂，请助教老师读完我的注释再看代码
     //使用默认存第一个参数的rdi存env，rax类似tmp变量
@@ -52,15 +53,15 @@ int asm_setjmp(asm_jmp_buf env) {
     //初步怀疑gcc分配寄存器出现问题，导致某个或者某几个寄存器被重复使用
       "push %%rbp;"
       "mov %%rsp,%%rbp;"
-      "movq 0x8(%%rbp),%%rax;" 
-      "movq %%rax,(%[a]);"
-      "movq (%%rbp),%%rax;"
+      "movq 0x8(%%rbp),%[b];" 
+      "movq %[b],(%[a]);"
+      "movq (%%rbp),%[b];"
       "addq $0x8, %[a];"
-      "movq %%rax,(%[a]);"
-      "movq %%rsp, %%rax;"
-      "addq $0x10, %%rax;"
+      "movq %[b],(%[a]);"
+      "movq %%rsp, %[b];"
+      "addq $0x10, %[b];"
       "addq $0x8, %[a];"
-      "movq %%rax,(%[a]);"
+      "movq %[b],(%[a]);"
       "addq $0x8, %[a];"
       "movq %%rbx,(%[a]);"
       "addq $0x8, %[a];"
@@ -73,7 +74,7 @@ int asm_setjmp(asm_jmp_buf env) {
       "movq %%r15,(%[a]);"
       "pop %%rbp;"
     :
-    :[a] "D" (env)
+    :[a] "D" (env),[b] "a" (tmp)
   );
   return 0;
 }
