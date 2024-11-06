@@ -87,24 +87,24 @@ void asm_longjmp(asm_jmp_buf env, int val) {
   //初步怀疑gcc分配寄存器出现问题，导致某个或者某几个寄存器被重复使用
   //把add和mov合成一条mov会报错，原因不清楚
   asm volatile(
-    "movq %%rsi,%%rax;"
-    "movq (%%rdi),%%rsi;"
-    "addq $0x8, %%rdi;"
-    "movq (%%rdi),%%rbp;"
-    "addq $0x8, %%rdi;"
-    "movq (%%rdi),%%rsp;"
-    "addq $0x8, %%rdi;"
-    "movq (%%rdi),%%rbx;"
-    "addq $0x8, %%rdi;"
-    "movq (%%rdi),%%r12;"
-    "addq $0x8, %%rdi;"
-    "movq (%%rdi),%%r13;"
-    "addq $0x8, %%rdi;"
-    "movq (%%rdi),%%r14;"
-    "addq $0x8, %%rdi;"
-    "movq (%%rdi),%%r15;"
-    "jmp *%%rsi;"
+    "movq %[b],%%rax;"
+    "movq (%[a]),%[b];"
+    "addq $0x8, %[a];"
+    "movq (%[a]),%%rbp;"
+    "addq $0x8, %[a];"
+    "movq (%[a]),%%rsp;"
+    "addq $0x8, %[a];"
+    "movq (%[a]),%%rbx;"
+    "addq $0x8, %[a];"
+    "movq (%[a]),%%r12;"
+    "addq $0x8, %[a];"
+    "movq (%[a]),%%r13;"
+    "addq $0x8, %[a];"
+    "movq (%[a]),%%r14;"
+    "addq $0x8, %[a];"
+    "movq (%[a]),%%r15;"
+    "jmp *%[b];"
+    :[a] "+D" (env),[b] "+S" (val)
     :
-    :"rdi"(env),"rsi"(val)
   );
 }
