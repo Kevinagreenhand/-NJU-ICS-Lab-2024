@@ -43,43 +43,39 @@ void *asm_memcpy(void *dest, const void *src, size_t n) {
 
 int asm_setjmp(asm_jmp_buf env) {
     asm volatile(
-        "push %%rbp;"
-        "mov %%rsp, %%rbp;"
-        "movq %%rsp, %%rax;"
-        "add $0x10, %%rax;"
-        "movq %%rax, (%%rdx);"
-        "movq (%%rbp), %%rax;"
-        "movq %%rax, 0x8(%%rdx);"
-        "movq 0x8(%%rbp), %%rax;"
-        "movq %%rax, 0x10(%%rdx);"
-        "movq %%rbx, 0x18(%%rdx);"
-        "movq %%r12, 0x20(%%rdx);"
-        "movq %%r13, 0x28(%%rdx);"
-        "movq %%r14, 0x30(%%rdx);"
-        "movq %%r15, 0x38(%%rdx);"
-        "pop %%rbp;"
-        : 
-        :"rdx"(env)
-        : "memory"
-    );
-    return 0;
+      "push %%rbp;"
+      "mov %%rsp,%%rbp;"
+      "movq (%%rbp),%%rax;"
+      "movq %%rax,(%%rdi);"//true rbp
+      "leaq 0x10(%%rsp),%%rax;"
+      "movq %%rax,0x8(%%rdi);"//true rsp
+      "movq %%rbx,0x10(%%rdi);"//rbx
+      "movq 0x8(%%rbp),%%rax;" //pc
+      "movq %%rax,0x18(%%rdi);"
+      "movq %%r12,0x20(%%rdi);"
+      "movq %%r13,0x28(%%rdi);"
+      "movq %%r14,0x30(%%rdi);"
+      "movq %%r15,0x38(%%rdi);"
+      "pop %%rbp;"
+    :
+    :"rdi"(env)
+  );
+  return 0;
 }
 
 void asm_longjmp(asm_jmp_buf env, int val) {
-    asm volatile(
-    "movq (%%rdi), %%rsp;"
-    "movq 0x8(%%rdi), %%rbp;"
-    "movq 0x18(%%rdi), %%rbx;"
-    "movq 0x20(%%rdi), %%r12;"
-    "movq 0x28(%%rdi), %%r13;"
-    "movq 0x30(%%rdi), %%r14;"
-    "movq 0x38(%%rdi), %%r15;"
-    "movq 0x10(%%rdi), %%rdi;"
-    "movq %%rsi, %%rax;"
-    "jmp *%%rdi;"
+  asm volatile(
+    "movq 0x10(%%rdi),%%rbx;"
+    "movq 0x20(%%rdi),%%r12;"
+    "movq 0x28(%%rdi),%%r13;"
+    "movq 0x30(%%rdi),%%r14;"
+    "movq 0x38(%%rdi),%%r15;"
+    "movq (%%rdi),%%rbp;"
+    "movq 0x8(%%rdi),%%rsp;"
+    "movq %%rsi,%%rax;"
+    "movq 0x18(%%rdi),%%rdi;"
+    "jmp *%%rdi;" //jmp to pc
     :
-    :"rsi"(val),"rdi"(env)
-    : 
+    :"rdi"(env),"rsi"(val)
   );
-  return;
 }
