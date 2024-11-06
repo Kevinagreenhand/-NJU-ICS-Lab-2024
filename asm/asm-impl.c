@@ -76,9 +76,9 @@ void asm_longjmp(asm_jmp_buf env, int val) {
     "movq %[f], %%r13;"
     "movq %[g], %%r14;"
     "movq %[h], %%r15;"
-    "movq %[c], %%rsi;"
+    "movq %[c], %%rdi;"
     "movq %[i], %%rax;"
-    "jmp *%%rsi;"
+    "jmp *%%rdi;"
     :
     :[a] "m" (env[0]), [b] "m" (env[1]), [c] "m" (env[2]),
     [d] "m" (env[3]), [e] "m" (env[4]), [f] "m" (env[5]),
