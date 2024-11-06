@@ -67,18 +67,18 @@ int asm_setjmp(asm_jmp_buf env) {
 
 void asm_longjmp(asm_jmp_buf env, int val) {
     asm volatile(
-    "movq (%%r9), %%rsp;"
-    "movq 0x8(%%r9), %%rbp;"
-    "movq 0x18(%%r9), %%rbx;"
-    "movq 0x20(%%r9), %%r12;"
-    "movq 0x28(%%r9), %%r13;"
-    "movq 0x30(%%r9), %%r14;"
-    "movq 0x38(%%r9), %%r15;"
-    "movq 0x10(%%r9), %%rdi;"
-    "movq %%r8, %%rax;"
+    "movq (%%rdi), %%rsp;"
+    "movq 0x8(%%rdi), %%rbp;"
+    "movq 0x18(%%rdi), %%rbx;"
+    "movq 0x20(%%rdi), %%r12;"
+    "movq 0x28(%%rdi), %%r13;"
+    "movq 0x30(%%rdi), %%r14;"
+    "movq 0x38(%%rdi), %%r15;"
+    "movq 0x10(%%rdi), %%rdi;"
+    "movq %%rsi, %%rax;"
     "jmp *%%rdi;"
     :
-    :"r8"(val),"r9"(env)
+    :"rsi"(val),"rdi"(env)
     : 
   );
   return;
