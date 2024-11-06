@@ -69,14 +69,14 @@ int asm_setjmp(asm_jmp_buf env) {
 
 void asm_longjmp(asm_jmp_buf env, int val) {
     asm volatile(
-    "movq [a], %%rsp;"
-    "movq [b], %%rbp;"
-    "movq [d], %%rbx;"
-    "movq [e], %%r12;"
-    "movq [f], %%r13;"
-    "movq [g], %%r14;"
-    "movq [h], %%r15;"
-    "movq [c], %%rax;"
+    "movq %[a], %%rsp;"
+    "movq %[b], %%rbp;"
+    "movq %[d], %%rbx;"
+    "movq %[e], %%r12;"
+    "movq %[f], %%r13;"
+    "movq %[g], %%r14;"
+    "movq %[h], %%r15;"
+    "movq %[c], %%rax;"
     "jmp *%%rax;"
     :
     :[a] "m" (env[0]), [b] "m" (env[1]), [c] "m" (env[2]),
