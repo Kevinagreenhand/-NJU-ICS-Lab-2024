@@ -46,16 +46,24 @@ int asm_setjmp(asm_jmp_buf env) {
       "push %%rbp;"
       "mov %%rsp,%%rbp;"
       "movq (%%rbp),%%rax;"
-      "movq %%rax,(%%rdi);"//true rbp
-      "leaq 0x10(%%rsp),%%rax;"
-      "movq %%rax,0x8(%%rdi);"//true rsp
-      "movq %%rbx,0x10(%%rdi);"//rbx
-      "movq 0x8(%%rbp),%%rax;" //pc
-      "movq %%rax,0x18(%%rdi);"
-      "movq %%r12,0x20(%%rdi);"
-      "movq %%r13,0x28(%%rdi);"
-      "movq %%r14,0x30(%%rdi);"
-      "movq %%r15,0x38(%%rdi);"
+      "movq %%rax,(%%rdi);"
+      "movq %%rsp, %%rax;"
+      "addq $0x10, %%rax"
+      "addq $0x8, %%rdi"
+      "movq %%rax,(%%rdi);"
+      "addq $0x8, %%rdi"
+      "movq %%rbx,(%%rdi);"
+      "movq 0x8(%%rbp),%%rax;" 
+      "addq $0x8, %%rdi"
+      "movq %%rax,(%%rdi);"
+      "addq $0x8, %%rdi"
+      "movq %%r12,(%%rdi);"
+      "addq $0x8, %%rdi"
+      "movq %%r13,(%%rdi);"
+      "addq $0x8, %%rdi"
+      "movq %%r14,(%%rdi);"
+      "addq $0x8, %%rdi"
+      "movq %%r15,(%%rdi);"
       "pop %%rbp;"
     :
     :"rdi"(env)
@@ -74,7 +82,7 @@ void asm_longjmp(asm_jmp_buf env, int val) {
     "movq 0x8(%%rdi),%%rsp;"
     "movq %%rsi,%%rax;"
     "movq 0x18(%%rdi),%%rdi;"
-    "jmp *%%rdi;" //jmp to pc
+    "jmp *%%rdi;"
     :
     :"rdi"(env),"rsi"(val)
   );
