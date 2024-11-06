@@ -105,7 +105,7 @@ void asm_longjmp(asm_jmp_buf env, int val) {
     "addq $0x8, %[a];"
     "movq (%[a]),%%r15;"
     "jmp *%%rsi;"
-    :[a] "+D" (env)
-    :"rsi"(val),[b] "a" (tmp)
+    :
+    :[a] "+D" (env),"rsi"(val),[b] "a" (tmp)
   );
 }
