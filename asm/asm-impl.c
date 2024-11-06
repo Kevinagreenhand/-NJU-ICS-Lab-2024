@@ -86,6 +86,7 @@ void asm_longjmp(asm_jmp_buf env, int val) {
   //待完善，如果用方括号形式让gcc分配8个寄存器代表env的8个元素，会出现段错误，set_jmp返回值无法修改
   //初步怀疑gcc分配寄存器出现问题，导致某个或者某几个寄存器被重复使用
   //把add和mov合成一条mov会报错，原因不清楚
+  uint64_t tmp=0;
   asm volatile(
     "movq %%rsi,%[b];"
     "movq (%[a]),%%rsi;"
@@ -105,6 +106,6 @@ void asm_longjmp(asm_jmp_buf env, int val) {
     "movq (%[a]),%%r15;"
     "jmp *%%rsi;"
     :[a] "+D" (env)
-    :"rsi"(val),[b] "+a"
+    :"rsi"(val),[b] "+a (tmp)"
   );
 }
