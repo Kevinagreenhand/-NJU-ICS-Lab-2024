@@ -56,15 +56,15 @@ int asm_setjmp(asm_jmp_buf env) {
       "movq 0x8(%%rbp),%%rax;" 
       "addq $0x8, %%rdi;"
       "movq %%rax,(%%rdi);"
-      "addq $0x8, %%rdi;"
-      "movq %%r12,(%%rdi);"
-      "addq $0x8, %%rdi;"
-      "movq %%r13,(%%rdi);"
-      "addq $0x8, %%rdi;"
-      "movq %%r14,(%%rdi);"
-      "addq $0x8, %%rdi;"
-      "movq %%r15,(%%rdi);"
-      "pop %%rbp;"
+      //"addq $0x8, %%rdi;"
+      //"movq %%r12,(%%rdi);"
+      //"addq $0x8, %%rdi;"
+      //"movq %%r13,(%%rdi);"
+      //"addq $0x8, %%rdi;"
+      //"movq %%r14,(%%rdi);"
+      //"addq $0x8, %%rdi;"
+      //"movq %%r15,(%%rdi);"
+      //"pop %%rbp;"
     :
     :"rdi"(env)
   );
@@ -73,13 +73,13 @@ int asm_setjmp(asm_jmp_buf env) {
 
 void asm_longjmp(asm_jmp_buf env, int val) {
   asm volatile(
-    "movq 0x10(%%rdi),%%rbx;"
-    "movq 0x20(%%rdi),%%r12;"
-    "movq 0x28(%%rdi),%%r13;"
-    "movq 0x30(%%rdi),%%r14;"
-    "movq 0x38(%%rdi),%%r15;"
     "movq (%%rdi),%%rbp;"
     "movq 0x8(%%rdi),%%rsp;"
+    "movq 0x10(%%rdi),%%rbx;"
+    //"movq 0x20(%%rdi),%%r12;"
+    //"movq 0x28(%%rdi),%%r13;"
+    //"movq 0x30(%%rdi),%%r14;"
+    //"movq 0x38(%%rdi),%%r15;"
     "movq %%rsi,%%rax;"
     "movq 0x18(%%rdi),%%rdi;"
     "jmp *%%rdi;"
