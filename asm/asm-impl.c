@@ -53,15 +53,15 @@ int asm_setjmp(asm_jmp_buf env) {
     //初步怀疑gcc分配寄存器出现问题，导致某个或者某几个寄存器被重复使用
       "push %%rbp;"
       "mov %%rsp,%%rbp;"
-      "movq 0x8(%%rbp),%[b];" 
-      "movq %[b],(%[a]);"
-      "movq (%%rbp),%[b];"
+      "movq 0x8(%%rbp),%%rax;" 
+      "movq %%rax,(%[a]);"
+      "movq (%%rbp),%%rax;"
       "addq $0x8, %[a];"
-      "movq %[b],(%[a]);"
-      "movq %%rsp, %[b];"
-      "addq $0x10, %[b];"
+      "movq %%rax,(%[a]);"
+      "movq %%rsp, %%rax;"
+      "addq $0x10, %%rax;"
       "addq $0x8, %[a];"
-      "movq %[b],(%[a]);"
+      "movq %%rax,(%[a]);"
       "addq $0x8, %[a];"
       "movq %%rbx,(%[a]);"
       "addq $0x8, %[a];"
@@ -74,7 +74,7 @@ int asm_setjmp(asm_jmp_buf env) {
       "movq %%r15,(%[a]);"
       "pop %%rbp;"
     :
-    :[a] "D" (env),[b] "a" (tmp)
+    :[a] "D" (env)
   );
   return 0;
 }
