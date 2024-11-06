@@ -47,43 +47,39 @@ int asm_setjmp(asm_jmp_buf env) {
         "mov %%rsp, %%rbp;"
         "movq %%rsp, %%rax;"
         "add $0x10, %%rax;"
-        "movq %%rax, %[a];"
+        "movq %%rax, (%%rdx);"
         "movq (%%rbp), %%rax;"
-        "movq %%rax, %[b];"
+        "movq %%rax, $0x8(%%rdx);"
         "movq 0x8(%%rbp), %%rax;"
-        "movq %%rax, %[c];"
-        "movq %%rbx, %[d];"
-        "movq %%r12, %[e];"
-        "movq %%r13, %[f];"
-        "movq %%r14, %[g];"
-        "movq %%r15, %[h];"
+        "movq %%rax, $0x10(%%rdx);"
+        "movq %%rbx, $0x18(%%rdx);"
+        "movq %%r12, $0x20(%%rdx);"
+        "movq %%r13, $0x28(%%rdx);"
+        "movq %%r14, $0x30(%%rdx);"
+        "movq %%r15, $0x38(%%rdx);"
         "pop %%rbp;"
-        : [a] "=m"(env[0]), [b] "=m"(env[1]), [c] "=m"(env[2]),
-          [d] "=m"(env[3]), [e] "=m"(env[4]), [f] "=m"(env[5]),
-          [g] "=m"(env[6]), [h] "=m"(env[7])
-        :
-        : "memory","rax"
+        : 
+        :"rdx"(env)
+        : "memory"
     );
     return 0;
 }
 
 void asm_longjmp(asm_jmp_buf env, int val) {
     asm volatile(
-    "movq %[a], %%rsp;"
-    "movq %[b], %%rbp;"
-    "movq %[d], %%rbx;"
-    "movq %[e], %%r12;"
-    "movq %[f], %%r13;"
-    "movq %[g], %%r14;"
-    "movq %[h], %%r15;"
-    "movq %[c], %%rdi;"
-    "movq %[i], %%rax;"
+    "movq (%%r9), %%rsp;"
+    "movq $0x8(%%r9), %%rbp;"
+    "movq $0x18(%%r9), %%rbx;"
+    "movq $0x20(%%r9), %%r12;"
+    "movq $0x28(%%r9), %%r13;"
+    "movq $0x30(%%r9), %%r14;"
+    "movq $0x38(%%r9), %%r15;"
+    "movq $0x10(%%r9), %%rdi;"
+    "movq %%r8, %%rax;"
     "jmp *%%rdi;"
     :
-    :[a] "m" (env[0]), [b] "m" (env[1]), [c] "m" (env[2]),
-    [d] "m" (env[3]), [e] "m" (env[4]), [f] "m" (env[5]),
-    [g] "m" (env[6]), [h] "m" (env[7]),[i] "m" (val)
-    : "rbx", "r12", "r13", "r14", "r15", "rbp",  "rax","rdi"
+    :"r8"(val),"r9"(env)
+    : 
   );
   return;
 }
