@@ -68,7 +68,7 @@ int asm_setjmp(asm_jmp_buf env) {
 void asm_longjmp(asm_jmp_buf env, int val) {
     asm volatile(
     "movq (%%r9), %%rsp;"
-    "movq $0x8(%%r9), %%rbp;"
+    "movq 0x8(%%r9), %%rbp;"
     "movq $0x18(%%r9), %%rbx;"
     "movq $0x20(%%r9), %%r12;"
     "movq $0x28(%%r9), %%r13;"
