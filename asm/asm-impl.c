@@ -72,8 +72,8 @@ int asm_setjmp(asm_jmp_buf env) {
       "addq $0x8, %[a];"
       "movq %%r15,(%[a]);"
       "pop %%rbp;"
-    :[a] "+D" (env)
     :
+    :[a] "D" (env)
   );
   return 0;
 }
