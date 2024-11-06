@@ -76,13 +76,14 @@ void asm_longjmp(asm_jmp_buf env, int val) {
     "movq %[f], %%r13;"
     "movq %[g], %%r14;"
     "movq %[h], %%r15;"
-    "movq %[c], %%rax;"
-    "jmp *%%rax;"
+    "movq %[c], %%rsi;"
+    "movq %[i], %%rax;"
+    "jmp *%%rsi;"
     :
     :[a] "m" (env[0]), [b] "m" (env[1]), [c] "m" (env[2]),
     [d] "m" (env[3]), [e] "m" (env[4]), [f] "m" (env[5]),
-    [g] "m" (env[6]), [h] "m" (env[7])
-    : "rbx", "r12", "r13", "r14", "r15", "rbp",  "rax"
+    [g] "m" (env[6]), [h] "m" (env[7]),[i] "m" (val)
+    : "rbx", "r12", "r13", "r14", "r15", "rbp",  "rax","rsi"
   );
   return;
 }
