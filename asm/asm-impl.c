@@ -87,7 +87,7 @@ void asm_longjmp(asm_jmp_buf env, int val) {
   //初步怀疑gcc分配寄存器出现问题，导致某个或者某几个寄存器被重复使用
   //把add和mov合成一条mov会报错，原因不清楚
   asm volatile(
-    "movq %%rsi,%%rax;"
+    "movq %%rsi,%[b];"
     "movq (%[a]),%%rsi;"
     "addq $0x8, %[a];"
     "movq (%[a]),%%rbp;"
@@ -104,7 +104,7 @@ void asm_longjmp(asm_jmp_buf env, int val) {
     "addq $0x8, %[a];"
     "movq (%[a]),%%r15;"
     "jmp *%%rsi;"
-    :[a] "+D" (env)
+    :[a] "+D" (env),[b] "+a"
     :"rsi"(val)
   );
 }
