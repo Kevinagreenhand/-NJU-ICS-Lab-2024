@@ -23,6 +23,6 @@ int *sieve(int n) {
               break;
         }
     }
-  primes[cnt]=0;
+  primes[tmpnum]=0;
   return primes;
 }
