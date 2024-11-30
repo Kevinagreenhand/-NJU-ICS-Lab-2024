@@ -16,7 +16,7 @@ int *sieve(int n) {
   //一遍整个数组，会额外消耗时间。所以在这里我把所有应该是true的改成false，应该是
   //false的改为true，之后把所有的条件表达式取反。这样就可以避免循环初始化浪费时间。
   is_prime[1] = true; 
-  for(int i = 2; i <= n; ++i) 
+  for(int i = 2; i <= n; i++) 
   {
     if(!is_prime[i])
     {
@@ -26,8 +26,8 @@ int *sieve(int n) {
     for(int j = 0; j <= tmpnum-1 && i * primes[j] <= n; j++)
     {
       is_prime[i * primes[j]] = true;
-      //if(i % primes[j] == 0) 
-      //  break;
+      if(i % primes[j] == 0) 
+        break;
     }
   }
   primes[tmpnum]=0;
