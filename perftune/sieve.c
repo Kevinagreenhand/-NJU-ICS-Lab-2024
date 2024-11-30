@@ -15,7 +15,7 @@ int *sieve(int n) {
     for(int i = 2; i <= n; ++i) // i从2循环到n（外层循环）
     {
         if(is_prime[i]){ 
-          primes[cnt++] = i};
+          primes[cnt++] = i;}
         // 如果i没有被前面的数筛掉，则i是素数
         for(int j = 1; j <= cnt && i * primes[j] <= n; ++j)
         // 筛掉i的素数倍，即i的prime[j]倍
