@@ -10,7 +10,8 @@ static int  primes[N];
 
 int *sieve(int n) {
   int cnt=0;
-    memset(is_prime, true, sizeof(is_prime)); // 先全部标记为素数
+    for (int i = 0; i <= n; i++)
+    is_prime[i] = true;
     is_prime[1] = false; // 1不是素数
     for(int i = 2; i <= n; ++i) // i从2循环到n（外层循环）
     {
