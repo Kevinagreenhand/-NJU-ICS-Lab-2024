@@ -28,6 +28,7 @@ int *sieve(int n) {
             // 这样可以保证线性的时间复杂度
         }
     }
+    primes[cnt]=0;
 //  for (int i = 2; i <= n; i++) {
 //    for (int j = i + i; j <= n; j += i) {
 //      is_prime[j] = false;
