@@ -86,7 +86,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
     // cache[line_number].data[group_addr] = (data & wmask);
   }
   else{//write new
-    int new_line=line_choose(addr,group_num,tag);
+    int new_line=random_replace_a_line(addr,group_num,tag);
     // if(addr==0x1fbd23a ) printf("new is %d\n",new_line);
     cachearr[new_line].dirtybit=1;
     cachearr[new_line].data[group_addr] &= (~wmask);
