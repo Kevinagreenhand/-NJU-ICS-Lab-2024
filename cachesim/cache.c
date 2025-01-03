@@ -42,7 +42,11 @@ int line_choose(uintptr_t addr,uint32_t group_index,uint32_t tag){
       }
   }
     int replace_index=group_index*associativity_size+rand()%associativity_size;
-    write_back(group_index,replace_index);
+    cachearr[replace_index].validbit=false;
+    if(cachearr[replace_index].dirtybit==true){
+      uintptr_t mem_addr=(cachearr[replace_index].tag<<group_nums_size)+group_index;
+      mem_write(mem_addr,(uint8_t*)(cachearr[replace_index].data));
+      cachearr[replace_index].dirtybit=false;}
     uintptr_t  mem_addr=(addr>>BLOCK_WIDTH);
     mem_read(mem_addr,(uint8_t*)(cachearr[replace_index].data));
     cachearr[replace_index].validbit=true;
