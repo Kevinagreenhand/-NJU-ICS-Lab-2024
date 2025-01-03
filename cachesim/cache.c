@@ -95,6 +95,10 @@ void init_cache(int total_size_width, int associativity_width) {
   for(int i=0;i<exp2(total_size_width-BLOCK_WIDTH);i++){
     cachearr[i].validbit=false;
     cachearr[i].dirtybit=false;
+    for(int j=0;j<(BLOCK_SIZE>>2);j++){
+      cachearr[i].data[j]=0;
+    }
+    
   }
 }
 
