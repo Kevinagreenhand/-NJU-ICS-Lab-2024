@@ -1,100 +1,131 @@
 #include "common.h"
 #include <inttypes.h>
-
+#include<assert.h>
 void mem_read(uintptr_t block_num, uint8_t *buf);
 void mem_write(uintptr_t block_num, const uint8_t *buf);
-
 static uint64_t cycle_cnt = 0;
-
+static uint64_t total_size;
+static uint64_t associativity_size;
+uint64_t group=0;
+uint64_t cacheline=0;
 void cycle_increase(int n) { cycle_cnt += n; }
 
-// TODO: implement the following functions
-typedef struct {
-  bool validbit;
-  bool dirtybit;
-  uint64_t tag;
-  uint8_t data[BLOCK_SIZE];
-} ACacheLine;
 
-ACacheLine* cachearr;
-static uint64_t associativity_size=0;
-static uint64_t group_num_width=0;
-static uint64_t random_replace_a_line(uint64_t addr,uint64_t group_index,uint64_t tag){
-  for(uint64_t i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
-    if (cachearr[i].validbit==false){
-      cachearr[i].validbit=true;
-      cachearr[i].dirtybit=false;
-      cachearr[i].tag=tag;
-      mem_read(addr>>BLOCK_WIDTH,cachearr[i].data);
-      return i;
-    }
+typedef struct 
+{
+  bool valid;
+  bool change;
+  uint32_t tag;
+  uint32_t data[16];
+}Cache;
+
+static Cache *cache;
+void write_back(uint32_t group_number,uint32_t lines){
+  cache[lines].valid=false;
+  if(cache[lines].change==1){
+  uintptr_t mem_addr=(cache[lines].tag<<group)+group_number;
+  mem_write(mem_addr,(uint8_t*)(cache[lines].data));
+  cache[lines].change=0;
   }
-  uint64_t replace_index=rand()%associativity_size+group_index*associativity_size;
-  cachearr[replace_index].validbit=false;
-  if(cachearr[replace_index].dirtybit==true){
-    mem_write((cachearr[replace_index].tag<<group_num_width)+group_index,cachearr[replace_index].data);
-    cachearr[replace_index].dirtybit=false;
-  }
-  mem_read(addr>>BLOCK_WIDTH,cachearr[replace_index].data);
-  cachearr[replace_index].tag=tag;
-  cachearr[replace_index].dirtybit=false;
-  cachearr[replace_index].validbit=true;
-  return replace_index;
 }
+
+// TODO: implement the following functions
+int line_choose(uintptr_t addr,uint32_t group_number,uint32_t tag){
+    int every_group=exp2(associativity_size);
+    int start=group_number*every_group;
+    int end=(group_number+1)*every_group;
+    assert(start>=0&&end>=0);
+      for(int i=start;i<end;i++){
+      if(cache[i].valid==false){
+        uintptr_t mem_addr=(addr>>BLOCK_WIDTH);
+        mem_read(mem_addr,(uint8_t*)(cache[i].data));
+        cache[i].valid=true;
+        cache[i].change=false;
+        cache[i].tag=tag;
+        return i;
+      }
+  }
+
+    int random=rand()%every_group;
+    int replace=start+random;
+    assert(replace<=end);
+    write_back(group_number,replace);
+
+    uintptr_t  mem_addr=(addr>>BLOCK_WIDTH);
+    mem_read(mem_addr,(uint8_t*)(cache[replace].data));
+    cache[replace].valid=true;
+    cache[replace].change=false;
+    cache[replace].tag=tag;
+    return replace;
+}
+
+int find(uint32_t group_number,uint32_t tag){
+  int every_group=exp2(associativity_size);
+  int start=group_number*every_group;
+  int end=(group_number+1)*(every_group);
+  for(int i=start;i<end;i++){
+      if(cache[i].tag==tag&&cache[i].valid==1)  return i;
+  }
+  return -1;
+}
+
+
 uint32_t cache_read(uintptr_t addr) {
-  uint64_t tag=addr>>(group_num_width+BLOCK_WIDTH);
-  uint64_t temp=(1<<group_num_width)-1;
-  uint64_t group_index=(addr>>BLOCK_WIDTH)&((uint64_t)((1<<group_num_width)-1));
-  uint64_t group_addr=(addr&0x3f)>>2;
-  bool findhelp=false;
-  uint64_t findrecord=0;
-  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
-    if (cachearr[i].validbit==true&&cachearr[i].tag==tag){
-      findrecord=i;
-      findhelp=true;
-      break;}
+  uint32_t tag=addr>>(group+BLOCK_WIDTH);
+  uint32_t temp=(1<<group)-1;
+  uint32_t group_num=(addr>>BLOCK_WIDTH)&temp;
+  uint32_t group_addr=(addr&0x3f)>>2;
+  int line_number=find(group_num,tag);
+  if(line_number!=-1){
+      return cache[line_number].data[group_addr];
   }
-  if(findhelp!=false){
-      return cachearr[findrecord].data[group_addr];
+  else{
+    int line=line_choose(addr,group_num,tag);
+    // printf("%x\n",cache[line].data[group_addr]);
+    return cache[line].data[group_addr];
   }
-  else
-    return cachearr[random_replace_a_line(addr,group_index,tag)].data[group_addr];
+  return 0;
 }
 
 void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
-  uint64_t tag=addr>>(group_num_width+BLOCK_WIDTH);
-  uint64_t temp=(1<<group_num_width)-1;
-  uint64_t group_index=(addr>>BLOCK_WIDTH)&((uint64_t)((1<<group_num_width)-1));
-  uint64_t group_addr=(addr&0x3f)>>2;
-  bool findhelp=false;
-  uint64_t findrecord=0;
-  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
-    if (cachearr[i].tag==tag){
-      findrecord=i;
-      findhelp=true;
-      break;}
+  uint32_t tag=addr>>(group+BLOCK_WIDTH);
+  uint32_t temp=(1<<group)-1;
+  uint32_t group_num=(addr>>BLOCK_WIDTH)&temp;
+  uint32_t group_addr=(addr&0x3f)>>2;
+  int line_number=-1;
+  int every_group=exp2(associativity_size);
+  int start=group_num*every_group;
+  int end=(group_num+1)*(every_group);
+  for(int i=start;i<end;i++){
+    if(cache[i].tag==tag){
+      line_number=i;
+      }
   }
-  if(findhelp==false){
-    findrecord=random_replace_a_line(addr,group_index,tag);
+  if(line_number!=-1){
+    cache[line_number].change=1;
+    cache[line_number].data[group_addr] &= (~wmask);
+	  cache[line_number].data[group_addr] |= (data & wmask);
   }
-  cachearr[findrecord].dirtybit=true;
-  cachearr[findrecord].data[group_addr]=(cachearr[findrecord].data[group_addr]&(~wmask))|(data&wmask);
+  else{
+    int new_line=line_choose(addr,group_num,tag);
+    cache[new_line].change=1;
+    cache[new_line].data[group_addr] &= (~wmask);
+	  cache[new_line].data[group_addr] |= (data & wmask);
+  }
 }
 
 void init_cache(int total_size_width, int associativity_width) {
-  associativity_size = exp2(associativity_width);
-  group_num_width = total_size_width - associativity_width-BLOCK_SIZE;
-  cachearr = (ACacheLine*)malloc(exp2(group_num_width)*associativity_size*sizeof(ACacheLine));
-  for(int i=0;i<exp2(group_num_width)*associativity_size;i++) {
-    cachearr[i].validbit=false;
-    cachearr[i].dirtybit=false;
-    //cachearr[i].tag=0;
-    //for(int j=0;j<BLOCK_SIZE;j++) {
-      //cachearr[i].data[j]=0;
-    //}
+  total_size=total_size_width;
+  associativity_size=associativity_width;
+  assert(total_size_width > associativity_width);
+  group=total_size_width-BLOCK_WIDTH-associativity_width;
+  cacheline=exp2(total_size_width-BLOCK_WIDTH);
+  cache = (Cache*)malloc(sizeof(Cache) * cacheline);
+  for(int i=0;i<cacheline;i++){
+    cache[i].valid=false;
+    cache[i].change=false;
   }
 }
 
-//这个函数疑似不需要写，先空着
 void display_statistic(void) {
 }
