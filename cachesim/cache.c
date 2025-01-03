@@ -20,7 +20,7 @@ typedef struct {
 ACacheLine* cachearr;
 static uint32_t associativity_size=0;
 static uint32_t group_num_width=0;
-static uint64_t random_replace_a_line(uint64_t addr,uint64_t group_index,uint64_t tag){
+static uint64_t random_replace_a_line(uint64_t addr,uint64_t group_index,uint32_t tag){
   for(uint64_t i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
     if (cachearr[i].validbit==false){
       cachearr[i].validbit=true;
@@ -43,7 +43,7 @@ static uint64_t random_replace_a_line(uint64_t addr,uint64_t group_index,uint64_
   return replace_index;
 }
 uint32_t cache_read(uintptr_t addr) {
-  uint64_t tag=addr>>(group_num_width+BLOCK_WIDTH);
+  uint32_t tag=addr>>(group_num_width+BLOCK_WIDTH);
   uint64_t group_index=(addr>>BLOCK_WIDTH)&((uint64_t)((1<<group_num_width)-1));
   uint64_t group_addr=(addr&0x3f)>>2;
   bool findhelp=false;
