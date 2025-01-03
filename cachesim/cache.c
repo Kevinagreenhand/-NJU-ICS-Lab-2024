@@ -69,15 +69,14 @@ int find(uint32_t group_number,uint32_t tag){
 
 uint32_t cache_read(uintptr_t addr) {
   uint32_t tag=addr>>(group_nums_size+BLOCK_WIDTH);
-  uint32_t temp=(1<<group_nums_size)-1;
-  uint32_t group_num=(addr>>BLOCK_WIDTH)&temp;
+  uint32_t group_index=(addr>>BLOCK_WIDTH)&((1<<group_nums_size)-1);
   uint32_t group_addr=(addr&0x3f)>>2;
-  int line_number=find(group_num,tag);
+  int line_number=find(group_index,tag);
   if(line_number!=-1){
       return cachearr[line_number].data[group_addr];
   }
   else{
-    int line=line_choose(addr,group_num,tag);
+    int line=line_choose(addr,group_index,tag);
     return cachearr[line].data[group_addr];
   }
   return 0;
@@ -85,13 +84,12 @@ uint32_t cache_read(uintptr_t addr) {
 
 void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   uint32_t tag=addr>>(group_nums_size+BLOCK_WIDTH);
-  uint32_t temp=(1<<group_nums_size)-1;
-  uint32_t group_num=(addr>>BLOCK_WIDTH)&temp;
+  uint32_t group_index=(addr>>BLOCK_WIDTH)&((1<<group_nums_size)-1);
   uint32_t group_addr=(addr&0x3f)>>2;
   int line_number=-1; 
   int every_group=associativity_size;
-  int start=group_num*every_group;
-  int end=(group_num+1)*(every_group);
+  int start=group_index*every_group;
+  int end=(group_index+1)*(every_group);
   for(int i=start;i<end;i++){
     if(cachearr[i].tag==tag){
       line_number=i;
@@ -103,7 +101,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
 	  cachearr[line_number].data[group_addr] |= (data & wmask);
   }
   else{
-    int new_line=line_choose(addr,group_num,tag);
+    int new_line=line_choose(addr,group_index,tag);
     cachearr[new_line].dirtybit=true;
     cachearr[new_line].data[group_addr] &= (~wmask);
 	  cachearr[new_line].data[group_addr] |= (data & wmask);
