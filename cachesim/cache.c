@@ -15,7 +15,7 @@ typedef struct
   bool valid;
   bool change;
   uint32_t tag;
-  uint32_t data[16];
+  uint32_t data[BLOCK_SIZE>>2];
 }Cache;
 
 static Cache *cache;
