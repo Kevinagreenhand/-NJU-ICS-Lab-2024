@@ -46,7 +46,8 @@ uint32_t cache_read(uintptr_t addr) {
   if(findhelp!=false){
       return cachearr[findrecord].data[group_addr];
   }
-  //else 没有实现
+  else
+    return cachearr[random_replace_a_line(addr,group_index,tag)].data[group_addr];
   return 0;
 }
 
