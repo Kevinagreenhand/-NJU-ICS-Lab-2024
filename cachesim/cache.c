@@ -29,6 +29,7 @@ static uint64_t random_replace_a_line(uint64_t addr,uint64_t group_index,uint64_
       return i;
     }
   }
+  return 0;
 }
 uint32_t cache_read(uintptr_t addr) {
   uint64_t tag=addr>>(group_num_width+BLOCK_WIDTH);
