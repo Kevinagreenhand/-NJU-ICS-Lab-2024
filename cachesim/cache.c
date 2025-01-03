@@ -64,8 +64,13 @@ uint32_t cache_read(uintptr_t addr) {
   uint32_t tag=addr>>(group_nums_size+BLOCK_WIDTH);
   uint32_t group_index=(addr>>BLOCK_WIDTH)&((1<<group_nums_size)-1);
   uint32_t group_addr=(addr&0x3f)>>2;
-  int line_index=find(group_index,tag);
-  if(line_index==-1){
+  int line_index=-114514;
+  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
+    if(cachearr[i].tag==tag&&cachearr[i].validbit==true){
+      line_index=i;
+      break;}
+  }
+  if(line_index==-114514){
     line_index=line_choose(addr,group_index,tag);
   }
   return cachearr[line_index].data[group_addr];
