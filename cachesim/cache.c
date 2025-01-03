@@ -24,7 +24,7 @@ void write_back(uint32_t group_number,uint32_t lines){
   if(cachearr[lines].dirtybit==1){
   uintptr_t mem_addr=(cachearr[lines].tag<<group_nums_size)+group_number;
   mem_write(mem_addr,(uint8_t*)(cachearr[lines].data));
-  cachearr[lines].change=0;
+  cachearr[lines].dirtybit=false;
   }
 }
 
