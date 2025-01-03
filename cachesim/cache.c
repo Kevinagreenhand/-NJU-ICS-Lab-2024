@@ -13,13 +13,13 @@ typedef struct {
   bool validbit;
   bool dirtybit;
   uint32_t tag;
-  //uint8_t不好读，改成uint32_t
+  //uint8_t不好读取，改成uint32_t
   uint32_t data[BLOCK_SIZE>>2];
 } ACacheLine;
 
 ACacheLine* cachearr;
-static uint64_t associativity_size=0;
-static uint64_t group_num_width=0;
+static uint32_t associativity_size=0;
+static uint32_t group_num_width=0;
 static uint64_t random_replace_a_line(uint64_t addr,uint64_t group_index,uint64_t tag){
   for(uint64_t i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
     if (cachearr[i].validbit==false){

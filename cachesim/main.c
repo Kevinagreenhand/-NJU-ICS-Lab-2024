@@ -54,10 +54,11 @@ static void random_trace(void) {
   struct trace t;
 
   int i;
-  for (i = 0; i < 1000; i ++) {
+  for (i = 0; i < 1000000; i ++) {
     t.t.len = choose_len[ choose(sizeof(choose_len) / sizeof(choose_len[0])) ] ;
     t.t.addr = choose(MEM_SIZE) & ~(t.t.len - 1);
     t.t.is_write = choose(2);
+    printf("addr = 0x%x, len = %d, is_write = %d\n", t.t.addr, t.t.len, t.t.is_write);
     if (t.t.is_write) t.data = rand();
 
     trace_exec(&t, true);
