@@ -9,7 +9,7 @@ uint64_t group_nums_size=0;
 
 void cycle_increase(int n) { cycle_cnt += n; }
 
-
+printf("%d",BLOCK_SIZE);
 typedef struct 
 {
   bool valid;
