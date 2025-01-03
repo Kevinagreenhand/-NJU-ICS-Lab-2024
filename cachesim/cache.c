@@ -20,14 +20,6 @@ typedef struct
 static ACacheLine *cachearr;
 static uint64_t associativity_size;
 static uint64_t group_nums_size=0;
-void write_back(uint32_t group_index,uint32_t line_index){
-  cachearr[line_index].validbit=false;
-  if(cachearr[line_index].dirtybit==true){
-  uintptr_t mem_addr=(cachearr[line_index].tag<<group_nums_size)+group_index;
-  mem_write(mem_addr,(uint8_t*)(cachearr[line_index].data));
-  cachearr[line_index].dirtybit=false;
-  }
-}
 
 // TODO: implement the following functions
 int line_choose(uintptr_t addr,uint32_t group_index,uint32_t tag){
@@ -75,13 +67,14 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   uint32_t tag=addr>>(group_nums_size+BLOCK_WIDTH);
   uint32_t group_index=(addr>>BLOCK_WIDTH)&((1<<group_nums_size)-1);
   uint32_t group_addr=(addr&0x3f)>>2;
-  int line_index=-1; 
+  int line_index=-1919810; 
   for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
     if(cachearr[i].tag==tag){
       line_index=i;
+      break;
       }
   }
-  if(line_index==-1){
+  if(line_index==-1919810){
     line_index=line_choose(addr,group_index,tag);
   }
   cachearr[line_index].dirtybit=true;
