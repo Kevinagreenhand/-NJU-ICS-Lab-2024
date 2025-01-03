@@ -43,7 +43,7 @@ static void trace_exec(struct trace *t, bool is_check) {
     uint32_t ret = cpu_read(t->t.addr, t->t.len);
     if (is_check) {
       uint32_t ret_uncache = cpu_uncache_read(t->t.addr, t->t.len);
-      printf("addr = 0x%d, ret = 0x%x, ret_uncache = 0x%x\n", t->t.addr, ret, ret_uncache);
+      //printf("addr = 0x%d, ret = 0x%x, ret_uncache = 0x%x\n", t->t.addr, ret, ret_uncache);
       assert(ret == ret_uncache);
     }
   }
@@ -70,7 +70,7 @@ static void check_diff(void) {
   for (addr = 0; addr < MEM_SIZE; addr += 4) {
     uint32_t ret = cpu_read(addr, 4);
     uint32_t ret_uncache = cpu_uncache_read(addr, 4);
-    printf("addr = 0x%lx, ret = 0x%x, ret_uncache = 0x%x\n", addr, ret, ret_uncache);
+    //printf("addr = 0x%lx, ret = 0x%x, ret_uncache = 0x%x\n", addr, ret, ret_uncache);
     assert(ret == ret_uncache);
   }
 }
