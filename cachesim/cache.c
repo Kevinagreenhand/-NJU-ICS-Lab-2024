@@ -4,8 +4,6 @@
 void mem_read(uintptr_t block_num, uint8_t *buf);
 void mem_write(uintptr_t block_num, const uint8_t *buf);
 static uint64_t cycle_cnt = 0;
-static uint64_t associativity_size;
-uint64_t group_nums_size=0;
 
 void cycle_increase(int n) { cycle_cnt += n; }
 
@@ -19,6 +17,8 @@ typedef struct
 }Cache;
 
 static Cache *cache;
+static uint64_t associativity_size;
+static uint64_t group_nums_size=0;
 void write_back(uint32_t group_number,uint32_t lines){
   cache[lines].valid=false;
   if(cache[lines].change==1){
