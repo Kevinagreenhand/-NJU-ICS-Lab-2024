@@ -12,7 +12,7 @@ void cycle_increase(int n) { cycle_cnt += n; }
 typedef struct {
   bool validbit;
   bool dirtybit;
-  uint64_t tag;
+  uint32_t tag;
   //uint8_t不好读，改成uint32_t
   uint32_t data[BLOCK_SIZE>>2];
 } ACacheLine;
