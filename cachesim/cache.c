@@ -13,7 +13,8 @@ typedef struct {
   bool validbit;
   bool dirtybit;
   uint64_t tag;
-  uint8_t data[BLOCK_SIZE];
+  //uint8_t不好读，改成uint32_t
+  uint32_t data[BLOCK_SIZE>>2];
 } ACacheLine;
 
 ACacheLine* cachearr;
