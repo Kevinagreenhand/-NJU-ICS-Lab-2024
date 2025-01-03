@@ -13,7 +13,7 @@ typedef struct
   bool validbit;
   bool dirtybit;
   uint32_t tag;
-  //为了配合mem_read mem_write，这里用32位，所以右移2
+  //每个元素32位，便于读写东西
   uint32_t data[BLOCK_SIZE>>2];
 }ACacheLine;
 
@@ -22,10 +22,11 @@ static uint64_t associativity_size;
 static uint64_t group_nums_size=0;
 
 // TODO: implement the following functions
-int random_replacement(unsigned long addr,uint32_t group_index,uint32_t tag){
-    for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
+uint32_t random_replacement(unsigned long addr,uint32_t group_index,uint32_t tag){
+  unsigned long mem_addr=0;
+  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
       if(cachearr[i].validbit==false){
-        unsigned long mem_addr=(addr>>BLOCK_WIDTH);
+        mem_addr=(addr>>BLOCK_WIDTH);
         mem_read(mem_addr,(uint8_t*)(cachearr[i].data));
         cachearr[i].validbit=true;
         cachearr[i].dirtybit=false;
@@ -36,10 +37,10 @@ int random_replacement(unsigned long addr,uint32_t group_index,uint32_t tag){
     int replace_index=group_index*associativity_size+rand()%associativity_size;
     cachearr[replace_index].validbit=false;
     if(cachearr[replace_index].dirtybit==true){
-      unsigned long mem_addr=(cachearr[replace_index].tag<<group_nums_size)+group_index;
+      mem_addr=(cachearr[replace_index].tag<<group_nums_size)+group_index;
       mem_write(mem_addr,(uint8_t*)(cachearr[replace_index].data));
       cachearr[replace_index].dirtybit=false;}
-    unsigned long  mem_addr=(addr>>BLOCK_WIDTH);
+    mem_addr=(addr>>BLOCK_WIDTH);
     mem_read(mem_addr,(uint8_t*)(cachearr[replace_index].data));
     cachearr[replace_index].validbit=true;
     cachearr[replace_index].dirtybit=false;
