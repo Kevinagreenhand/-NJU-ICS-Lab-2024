@@ -95,17 +95,12 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
       line_number=i;
       }
   }
-  if(line_number!=-1){
-    cachearr[line_number].dirtybit=true;
-    cachearr[line_number].data[group_addr] &= (~wmask);
-	  cachearr[line_number].data[group_addr] |= (data & wmask);
+  if(line_number==-1){
+    line_number=line_choose(addr,group_index,tag);
   }
-  else{
-    int new_line=line_choose(addr,group_index,tag);
-    cachearr[new_line].dirtybit=true;
-    cachearr[new_line].data[group_addr] &= (~wmask);
-	  cachearr[new_line].data[group_addr] |= (data & wmask);
-  }
+  cachearr[line_number].dirtybit=true;
+  cachearr[line_number].data[group_addr] &= (~wmask);
+	cachearr[line_number].data[group_addr] |= (data & wmask);
 }
 
 
