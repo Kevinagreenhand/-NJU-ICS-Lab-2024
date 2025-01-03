@@ -22,10 +22,10 @@ static uint64_t associativity_size;
 static uint64_t group_nums_size=0;
 
 // TODO: implement the following functions
-int line_choose(uintptr_t addr,uint32_t group_index,uint32_t tag){
-      for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
+int random_replacement(unsigned long addr,uint32_t group_index,uint32_t tag){
+    for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
       if(cachearr[i].validbit==false){
-        uintptr_t mem_addr=(addr>>BLOCK_WIDTH);
+        unsigned long mem_addr=(addr>>BLOCK_WIDTH);
         mem_read(mem_addr,(uint8_t*)(cachearr[i].data));
         cachearr[i].validbit=true;
         cachearr[i].dirtybit=false;
@@ -36,10 +36,10 @@ int line_choose(uintptr_t addr,uint32_t group_index,uint32_t tag){
     int replace_index=group_index*associativity_size+rand()%associativity_size;
     cachearr[replace_index].validbit=false;
     if(cachearr[replace_index].dirtybit==true){
-      uintptr_t mem_addr=(cachearr[replace_index].tag<<group_nums_size)+group_index;
+      unsigned long mem_addr=(cachearr[replace_index].tag<<group_nums_size)+group_index;
       mem_write(mem_addr,(uint8_t*)(cachearr[replace_index].data));
       cachearr[replace_index].dirtybit=false;}
-    uintptr_t  mem_addr=(addr>>BLOCK_WIDTH);
+    unsigned long  mem_addr=(addr>>BLOCK_WIDTH);
     mem_read(mem_addr,(uint8_t*)(cachearr[replace_index].data));
     cachearr[replace_index].validbit=true;
     cachearr[replace_index].dirtybit=false;
@@ -60,7 +60,7 @@ uint32_t cache_read(uintptr_t addr) {
       break;}
   }
   if(is_hit==false){
-    line_index=line_choose(addr,group_index,tag);
+    line_index=random_replacement(addr,group_index,tag);
   }
   return cachearr[line_index].data[group_addr];
 }
@@ -79,7 +79,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
       }
   }
   if(is_hit==false){
-    line_index=line_choose(addr,group_index,tag);
+    line_index=random_replacement(addr,group_index,tag);
   }
   cachearr[line_index].dirtybit=true;
   cachearr[line_index].data[group_addr] &= (~wmask);
@@ -89,7 +89,6 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
 
 void init_cache(int total_size_width, int associativity_width) {
   associativity_size=exp2(associativity_width);
-  assert(total_size_width > associativity_width);
   group_nums_size=total_size_width-BLOCK_WIDTH-associativity_width;
   cachearr = (ACacheLine*)malloc(sizeof(ACacheLine) * exp2(total_size_width-BLOCK_WIDTH));
   for(int i=0;i<exp2(total_size_width-BLOCK_WIDTH);i++){
