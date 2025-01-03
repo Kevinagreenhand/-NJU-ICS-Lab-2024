@@ -100,7 +100,7 @@ static void parse_args(int argc, char *argv[]) {
   }
 
   if (!has_seed) {
-    seed = time(0);
+    seed = 1735916760;//time(0);
   }
 }
 
