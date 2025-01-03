@@ -68,6 +68,17 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   uint64_t group_addr=(addr&0x3f)>>2;
   bool findhelp=false;
   uint64_t findrecord=0;
+  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
+    if (cachearr[i].tag==tag){
+      findrecord=i;
+      findhelp=true;
+      break;}
+  }
+  if(findhelp==false){
+    findrecord=random_replace_a_line(addr,group_index,tag);
+  }
+  cachearr[findrecord].dirtybit=true;
+  cachearr[findrecord].data[group_addr]=(cachearr[findrecord].data[group_addr]&(~wmask))|(data&wmask);
 }
 
 void init_cache(int total_size_width, int associativity_width) {
