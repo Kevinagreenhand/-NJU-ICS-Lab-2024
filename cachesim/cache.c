@@ -81,14 +81,16 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   }
   if(line_number!=-1){//has data
     cachearr[line_number].dirtybit=1;
-    cachearr[line_number].data[group_addr] = ((cachearr[line_number].data[group_addr])&(~wmask))|(data & wmask);
+    cachearr[line_number].data[group_addr] &= (~wmask);//make other data
+	  cachearr[line_number].data[group_addr] |= (data & wmask);
     // cache[line_number].data[group_addr] = (data & wmask);
   }
   else{//write new
     int new_line=random_replace_a_line(addr,group_num,tag);
     // if(addr==0x1fbd23a ) printf("new is %d\n",new_line);
     cachearr[new_line].dirtybit=1;
-    cachearr[new_line].data[group_addr] = ((cachearr[new_line].data[group_addr])&(~wmask))|(data & wmask);
+    cachearr[new_line].data[group_addr] &= (~wmask);
+	  cachearr[new_line].data[group_addr] |= (data & wmask);
     // cache[line_number].data[group_addr] = (data & wmask);
   }
 }
