@@ -5,7 +5,7 @@ void mem_read(uintptr_t block_num, uint8_t *buf);
 void mem_write(uintptr_t block_num, const uint8_t *buf);
 static uint64_t cycle_cnt = 0;
 static uint64_t associativity_size;
-uint64_t group=0;
+uint64_t group_nums_size=0;
 
 void cycle_increase(int n) { cycle_cnt += n; }
 
@@ -15,14 +15,14 @@ typedef struct
   bool valid;
   bool change;
   uint32_t tag;
-  uint32_t data[16];
+  uint32_t data[BLOCK_SIZE>>2];
 }Cache;
 
 static Cache *cache;
 void write_back(uint32_t group_number,uint32_t lines){
   cache[lines].valid=false;
   if(cache[lines].change==1){
-  uintptr_t mem_addr=(cache[lines].tag<<group)+group_number;
+  uintptr_t mem_addr=(cache[lines].tag<<group_nums_size)+group_number;
   mem_write(mem_addr,(uint8_t*)(cache[lines].data));
   cache[lines].change=0;
   }
@@ -68,8 +68,8 @@ int find(uint32_t group_number,uint32_t tag){
 
 
 uint32_t cache_read(uintptr_t addr) {
-  uint32_t tag=addr>>(group+BLOCK_WIDTH);
-  uint32_t temp=(1<<group)-1;
+  uint32_t tag=addr>>(group_nums_size+BLOCK_WIDTH);
+  uint32_t temp=(1<<group_nums_size)-1;
   uint32_t group_num=(addr>>BLOCK_WIDTH)&temp;
   uint32_t group_addr=(addr&0x3f)>>2;
   int line_number=find(group_num,tag);
@@ -84,8 +84,8 @@ uint32_t cache_read(uintptr_t addr) {
 }
 
 void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
-  uint32_t tag=addr>>(group+BLOCK_WIDTH);
-  uint32_t temp=(1<<group)-1;
+  uint32_t tag=addr>>(group_nums_size+BLOCK_WIDTH);
+  uint32_t temp=(1<<group_nums_size)-1;
   uint32_t group_num=(addr>>BLOCK_WIDTH)&temp;
   uint32_t group_addr=(addr&0x3f)>>2;
   int line_number=-1; 
@@ -114,7 +114,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
 void init_cache(int total_size_width, int associativity_width) {
   associativity_size=associativity_width;
   assert(total_size_width > associativity_width);
-  group=total_size_width-BLOCK_WIDTH-associativity_width;
+  group_nums_size=total_size_width-BLOCK_WIDTH-associativity_width;
   cache = (Cache*)malloc(sizeof(Cache) * exp2(total_size_width-BLOCK_WIDTH));
   for(int i=0;i<exp2(total_size_width-BLOCK_WIDTH);i++){
     cache[i].valid=false;
