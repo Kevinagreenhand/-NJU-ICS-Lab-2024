@@ -104,6 +104,7 @@ static void parse_args(int argc, char *argv[]) {
 
 void replay_trace(void) {
   if (tracefile == NULL) {
+    printf("Random test start!\n");
     random_trace();
     check_diff();
     printf("Random test pass!\n");
@@ -131,7 +132,6 @@ int main(int argc, char *argv[]) {
   init_mem();
 
   init_cache(14, 2);
-  printf("Cache init done!\n");
   replay_trace();
 
   display_statistic();
