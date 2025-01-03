@@ -59,10 +59,15 @@ uint32_t cache_read(uintptr_t addr) {
   }
   else
     return cachearr[random_replace_a_line(addr,group_index,tag)].data[group_addr];
-  return 0;
 }
 
 void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
+  uint64_t tag=addr>>(group_num_width+BLOCK_WIDTH);
+  uint64_t temp=(1<<group_num_width)-1;
+  uint64_t group_index=(addr>>BLOCK_WIDTH)&((uint64_t)((1<<group_num_width)-1));
+  uint64_t group_addr=(addr&0x3f)>>2;
+  bool findhelp=false;
+  uint64_t findrecord=0;
 }
 
 void init_cache(int total_size_width, int associativity_width) {
