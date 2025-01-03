@@ -17,9 +17,25 @@ typedef struct {
 } ACacheLine;
 
 ACacheLine* cachearr;
-static int associativity_size=0;
-static int group_num_width=0;
+static uint64_t associativity_size=0;
+static uint64_t group_num_width=0;
 uint32_t cache_read(uintptr_t addr) {
+  uint64_t tag=addr>>(group_num_width+BLOCK_WIDTH);
+  uint64_t temp=(1<<group_num_width)-1;
+  uint64_t group_index=(addr>>BLOCK_WIDTH)&((uint64_t)((1<<group_num_width)-1));
+  uint64_t group_addr=(addr&0x3f)>>2;
+  bool findhelp=false;
+  uint64_t findrecord=0;
+  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
+    if (cachearr[i].validbit==true&&cachearr[i].tag==tag){
+      findrecord=i;
+      findhelp=true;
+      break;}
+  }
+  if(findhelp!=false){
+      return cachearr[findrecord].data[group_addr];
+  }
+  //else 没有实现
   return 0;
 }
 
