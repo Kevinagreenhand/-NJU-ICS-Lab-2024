@@ -62,21 +62,37 @@ uint32_t cache_read(uintptr_t addr) {
 }
 
 void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
-  uint32_t tag=addr>>(group_num_width+BLOCK_WIDTH);
-  uint64_t group_index=(addr>>BLOCK_WIDTH)&((uint64_t)((1<<group_num_width)-1));
-  uint64_t group_addr=(addr&0x3f)>>2;
-  bool findhelp=false;
-  uint64_t findrecord=0;
-  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
-    if (cachearr[i].tag==tag){
-      findrecord=i;
-      findhelp=true;}
+  // if(addr==0x1fbd23a ) printf("write 8\n %x",wmask);
+  // printf("write %lx\n",addr);
+  uint32_t tag=addr>>(group_num_width+BLOCK_WIDTH);//tag
+  //get group number
+  uint32_t temp=(1<<group_num_width)-1;
+  uint32_t group_num=(addr>>BLOCK_WIDTH)&temp;//组号
+  uint32_t group_addr=(addr&0x3f)>>2;//组内地址 32wei 
+  // if(addr==0x1fbd23a ) printf("\n%d %d \n",group_num,group_addr);
+  int line_number=-1; //行号
+  int every_group=exp2(associativity_size);
+  int start=group_num*every_group;
+  int end=(group_num+1)*(every_group);
+  for(int i=start;i<end;i++){//需要<不然会找到下一组
+    if(cachearr[i].tag==tag){
+      line_number=i;
+      }
   }
-  if(findhelp==false){
-    findrecord=random_replace_a_line(addr,group_index,tag);
+  if(line_number!=-1){//has data
+    cachearr[line_number].dirtybit=1;
+    cachearr[line_number].data[group_addr] &= (~wmask);//make other data
+	  cachearr[line_number].data[group_addr] |= (data & wmask);
+    // cache[line_number].data[group_addr] = (data & wmask);
   }
-  cachearr[findrecord].dirtybit=true;
-  cachearr[findrecord].data[group_addr]=(cachearr[findrecord].data[group_addr]&(~wmask))|(data&wmask);
+  else{//write new
+    int new_line=line_choose(addr,group_num,tag);
+    // if(addr==0x1fbd23a ) printf("new is %d\n",new_line);
+    cachearr[new_line].dirtybit=1;
+    cachearr[new_line].data[group_addr] &= (~wmask);
+	  cachearr[new_line].data[group_addr] |= (data & wmask);
+    // cache[line_number].data[group_addr] = (data & wmask);
+  }
 }
 
 void init_cache(int total_size_width, int associativity_width) {
