@@ -50,12 +50,10 @@ int line_choose(uintptr_t addr,uint32_t group_index,uint32_t tag){
     return replace_index;
 }
 
-int find(uint32_t group_number,uint32_t tag){
-  int every_group=associativity_size;
-  int start=group_number*every_group;
-  int end=(group_number+1)*(every_group);
-  for(int i=start;i<end;i++){
-      if(cachearr[i].tag==tag&&cachearr[i].validbit==true)  return i;
+int find(uint32_t group_index,uint32_t tag){
+  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
+      if(cachearr[i].tag==tag&&cachearr[i].validbit==true)  
+        return i;
   }
   return -1;
 }
@@ -81,10 +79,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   uint32_t group_index=(addr>>BLOCK_WIDTH)&((1<<group_nums_size)-1);
   uint32_t group_addr=(addr&0x3f)>>2;
   int line_number=-1; 
-  int every_group=associativity_size;
-  int start=group_index*every_group;
-  int end=(group_index+1)*(every_group);
-  for(int i=start;i<end;i++){
+  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
     if(cachearr[i].tag==tag){
       line_number=i;
       }
