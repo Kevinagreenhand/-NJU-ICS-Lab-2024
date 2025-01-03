@@ -19,22 +19,18 @@ typedef struct
 static ACacheLine *cachearr;
 static uint64_t associativity_size;
 static uint64_t group_nums_size=0;
-void write_back(uint32_t group_number,uint32_t lines){
+void write_back(uint32_t group_index,uint32_t lines){
   cachearr[lines].validbit=false;
-  if(cachearr[lines].dirtybit==1){
-  uintptr_t mem_addr=(cachearr[lines].tag<<group_nums_size)+group_number;
+  if(cachearr[lines].dirtybit==true){
+  uintptr_t mem_addr=(cachearr[lines].tag<<group_nums_size)+group_index;
   mem_write(mem_addr,(uint8_t*)(cachearr[lines].data));
   cachearr[lines].dirtybit=false;
   }
 }
 
 // TODO: implement the following functions
-int line_choose(uintptr_t addr,uint32_t group_number,uint32_t tag){
-    int every_group=associativity_size;
-    int start=group_number*every_group;
-    int end=(group_number+1)*every_group;
-    assert(start>=0&&end>=0);
-      for(int i=start;i<end;i++){
+int line_choose(uintptr_t addr,uint32_t group_index,uint32_t tag){
+      for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
       if(cachearr[i].validbit==false){
         uintptr_t mem_addr=(addr>>BLOCK_WIDTH);
         mem_read(mem_addr,(uint8_t*)(cachearr[i].data));
@@ -44,16 +40,14 @@ int line_choose(uintptr_t addr,uint32_t group_number,uint32_t tag){
         return i;
       }
   }
-    int random=rand()%every_group;
-    int replace=start+random;
-    assert(replace<=end);
-    write_back(group_number,replace);
+    int replace_index=group_index*associativity_size+rand()%associativity_size;
+    write_back(group_index,replace_index);
     uintptr_t  mem_addr=(addr>>BLOCK_WIDTH);
-    mem_read(mem_addr,(uint8_t*)(cachearr[replace].data));
-    cachearr[replace].validbit=true;
-    cachearr[replace].dirtybit=false;
-    cachearr[replace].tag=tag;
-    return replace;
+    mem_read(mem_addr,(uint8_t*)(cachearr[replace_index].data));
+    cachearr[replace_index].validbit=true;
+    cachearr[replace_index].dirtybit=false;
+    cachearr[replace_index].tag=tag;
+    return replace_index;
 }
 
 int find(uint32_t group_number,uint32_t tag){
