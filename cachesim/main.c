@@ -61,6 +61,7 @@ static void random_trace(void) {
 
     trace_exec(&t, true);
   }
+  printf("random test hahah!\n");
 }
 
 static void check_diff(void) {
@@ -104,7 +105,6 @@ static void parse_args(int argc, char *argv[]) {
 
 void replay_trace(void) {
   if (tracefile == NULL) {
-    printf("Random test start!\n");
     random_trace();
     check_diff();
     printf("Random test pass!\n");
