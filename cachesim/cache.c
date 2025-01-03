@@ -15,7 +15,7 @@ typedef struct
   bool valid;
   bool change;
   uint32_t tag;
-  uint32_t data[16];
+  uint32_t data[BLOCK_SIZE>>2];
 }Cache;
 
 static Cache *cache;
@@ -30,7 +30,7 @@ void write_back(uint32_t group_number,uint32_t lines){
 
 // TODO: implement the following functions
 int line_choose(uintptr_t addr,uint32_t group_number,uint32_t tag){
-    int every_group=exp2(associativity_size);
+    int every_group=associativity_size;
     int start=group_number*every_group;
     int end=(group_number+1)*every_group;
     assert(start>=0&&end>=0);
@@ -57,7 +57,7 @@ int line_choose(uintptr_t addr,uint32_t group_number,uint32_t tag){
 }
 
 int find(uint32_t group_number,uint32_t tag){
-  int every_group=exp2(associativity_size);
+  int every_group=associativity_size;
   int start=group_number*every_group;
   int end=(group_number+1)*(every_group);
   for(int i=start;i<end;i++){
@@ -89,7 +89,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   uint32_t group_num=(addr>>BLOCK_WIDTH)&temp;
   uint32_t group_addr=(addr&0x3f)>>2;
   int line_number=-1; 
-  int every_group=exp2(associativity_size);
+  int every_group=associativity_size;
   int start=group_num*every_group;
   int end=(group_num+1)*(every_group);
   for(int i=start;i<end;i++){
@@ -112,9 +112,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
 
 
 void init_cache(int total_size_width, int associativity_width) {
-  printf("%d",16);
-  printf("%d",BLOCK_SIZE>>2);
-  associativity_size=associativity_width;
+  associativity_size=exp2(associativity_width);
   assert(total_size_width > associativity_width);
   group_nums_size=total_size_width-BLOCK_WIDTH-associativity_width;
   cache = (Cache*)malloc(sizeof(Cache) * exp2(total_size_width-BLOCK_WIDTH));
