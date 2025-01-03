@@ -11,7 +11,7 @@ void cycle_increase(int n) { cycle_cnt += n; }
 // TODO: implement the following functions
 typedef struct {
   bool validbit;
-  bool dirty;
+  bool dirtybit;
   uint64_t tag;
   uint8_t data[BLOCK_SIZE];
 } ACacheLine;
@@ -20,16 +20,26 @@ ACacheLine* cachearr;
 static uint64_t associativity_size=0;
 static uint64_t group_num_width=0;
 static uint64_t random_replace_a_line(uint64_t addr,uint64_t group_index,uint64_t tag){
-  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
+  for(uint64_t i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
     if (cachearr[i].validbit==false){
       cachearr[i].validbit=true;
+      cachearr[i].dirtybit=false;
       cachearr[i].tag=tag;
-      mem_read(addr>>BLOCK_WIDTH,(uint8_t*)(cachearr[i].data));//mem_read接收
-
+      mem_read(addr>>BLOCK_WIDTH,cachearr[i].data);
       return i;
     }
   }
-  return 0;
+  uint64_t replace_index=rand()%associativity_size+group_index*associativity_size;
+  cachearr[replace_index].validbit=false;
+  if(cachearr[replace_index].dirtybit==true){
+    mem_write(cachearr[replace_index].tag<<group_num_width+group_index,cachearr[replace_index].data);
+    cachearr[replace_index].dirtybit=false;
+  }
+  mem_read(addr>>BLOCK_WIDTH,cachearr[replace_index].data);
+  cachearr[replace_index].tag=tag;
+  cachearr[replace_index].dirtybit=false;
+  cachearr[replace_index].validbit=true;
+  return replace_index;
 }
 uint32_t cache_read(uintptr_t addr) {
   uint64_t tag=addr>>(group_num_width+BLOCK_WIDTH);
@@ -61,7 +71,7 @@ void init_cache(int total_size_width, int associativity_width) {
   cachearr = (ACacheLine*)malloc(exp2(group_num_width)*associativity_size*sizeof(ACacheLine));
   for(int i=0;i<exp2(group_num_width)*associativity_size;i++) {
     cachearr[i].validbit=false;
-    cachearr[i].dirty=false;
+    cachearr[i].dirtybit=false;
     cachearr[i].tag=0;
     for(int j=0;j<BLOCK_SIZE;j++) {
       cachearr[i].data[j]=0;
