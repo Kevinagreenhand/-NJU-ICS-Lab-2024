@@ -4,10 +4,9 @@
 void mem_read(uintptr_t block_num, uint8_t *buf);
 void mem_write(uintptr_t block_num, const uint8_t *buf);
 static uint64_t cycle_cnt = 0;
-static uint64_t total_size;
 static uint64_t associativity_size;
 uint64_t group=0;
-uint64_t cacheline=0;
+
 void cycle_increase(int n) { cycle_cnt += n; }
 
 
@@ -113,13 +112,11 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
 
 
 void init_cache(int total_size_width, int associativity_width) {
-  total_size=total_size_width;
   associativity_size=associativity_width;
   assert(total_size_width > associativity_width);
   group=total_size_width-BLOCK_WIDTH-associativity_width;
-  cacheline=exp2(total_size_width-BLOCK_WIDTH);
-  cache = (Cache*)malloc(sizeof(Cache) * cacheline);
-  for(int i=0;i<cacheline;i++){
+  cache = (Cache*)malloc(sizeof(Cache) * exp2(total_size_width-BLOCK_WIDTH));
+  for(int i=0;i<exp2(total_size_width-BLOCK_WIDTH);i++){
     cache[i].valid=false;
     cache[i].change=false;
   }
