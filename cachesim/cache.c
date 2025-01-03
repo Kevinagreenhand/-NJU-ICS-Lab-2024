@@ -13,18 +13,19 @@ typedef struct
   bool validbit;
   bool dirtybit;
   uint32_t tag;
+  //为了配合mem_read mem_write，这里用32位，所以右移2
   uint32_t data[BLOCK_SIZE>>2];
 }ACacheLine;
 
 static ACacheLine *cachearr;
 static uint64_t associativity_size;
 static uint64_t group_nums_size=0;
-void write_back(uint32_t group_index,uint32_t lines){
-  cachearr[lines].validbit=false;
-  if(cachearr[lines].dirtybit==true){
-  uintptr_t mem_addr=(cachearr[lines].tag<<group_nums_size)+group_index;
-  mem_write(mem_addr,(uint8_t*)(cachearr[lines].data));
-  cachearr[lines].dirtybit=false;
+void write_back(uint32_t group_index,uint32_t line_index){
+  cachearr[line_index].validbit=false;
+  if(cachearr[line_index].dirtybit==true){
+  uintptr_t mem_addr=(cachearr[line_index].tag<<group_nums_size)+group_index;
+  mem_write(mem_addr,(uint8_t*)(cachearr[line_index].data));
+  cachearr[line_index].dirtybit=false;
   }
 }
 
@@ -63,33 +64,29 @@ uint32_t cache_read(uintptr_t addr) {
   uint32_t tag=addr>>(group_nums_size+BLOCK_WIDTH);
   uint32_t group_index=(addr>>BLOCK_WIDTH)&((1<<group_nums_size)-1);
   uint32_t group_addr=(addr&0x3f)>>2;
-  int line_number=find(group_index,tag);
-  if(line_number!=-1){
-      return cachearr[line_number].data[group_addr];
+  int line_index=find(group_index,tag);
+  if(line_index==-1){
+    line_index=line_choose(addr,group_index,tag);
   }
-  else{
-    int line=line_choose(addr,group_index,tag);
-    return cachearr[line].data[group_addr];
-  }
-  return 0;
+  return cachearr[line_index].data[group_addr];
 }
 
 void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
   uint32_t tag=addr>>(group_nums_size+BLOCK_WIDTH);
   uint32_t group_index=(addr>>BLOCK_WIDTH)&((1<<group_nums_size)-1);
   uint32_t group_addr=(addr&0x3f)>>2;
-  int line_number=-1; 
+  int line_index=-1; 
   for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
     if(cachearr[i].tag==tag){
-      line_number=i;
+      line_index=i;
       }
   }
-  if(line_number==-1){
-    line_number=line_choose(addr,group_index,tag);
+  if(line_index==-1){
+    line_index=line_choose(addr,group_index,tag);
   }
-  cachearr[line_number].dirtybit=true;
-  cachearr[line_number].data[group_addr] &= (~wmask);
-	cachearr[line_number].data[group_addr] |= (data & wmask);
+  cachearr[line_index].dirtybit=true;
+  cachearr[line_index].data[group_addr] &= (~wmask);
+	cachearr[line_index].data[group_addr] |= (data & wmask);
 }
 
 
