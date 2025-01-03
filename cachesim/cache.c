@@ -32,7 +32,7 @@ static uint64_t random_replace_a_line(uint64_t addr,uint64_t group_index,uint64_
   uint64_t replace_index=rand()%associativity_size+group_index*associativity_size;
   cachearr[replace_index].validbit=false;
   if(cachearr[replace_index].dirtybit==true){
-    mem_write(cachearr[replace_index].tag<<group_num_width+group_index,cachearr[replace_index].data);
+    mem_write((cachearr[replace_index].tag<<group_num_width)+group_index,cachearr[replace_index].data);
     cachearr[replace_index].dirtybit=false;
   }
   mem_read(addr>>BLOCK_WIDTH,cachearr[replace_index].data);
