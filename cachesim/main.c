@@ -43,6 +43,7 @@ static void trace_exec(struct trace *t, bool is_check) {
     uint32_t ret = cpu_read(t->t.addr, t->t.len);
     if (is_check) {
       uint32_t ret_uncache = cpu_uncache_read(t->t.addr, t->t.len);
+      printf("addr = 0x%lx, ret = 0x%x, ret_uncache = 0x%x\n", t->t.addr, ret, ret_uncache);
       assert(ret == ret_uncache);
     }
   }
@@ -61,7 +62,6 @@ static void random_trace(void) {
 
     trace_exec(&t, true);
   }
-  printf("random test hahah!\n");
 }
 
 static void check_diff(void) {
