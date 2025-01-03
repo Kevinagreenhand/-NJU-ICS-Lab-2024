@@ -68,6 +68,7 @@ static void check_diff(void) {
   for (addr = 0; addr < MEM_SIZE; addr += 4) {
     uint32_t ret = cpu_read(addr, 4);
     uint32_t ret_uncache = cpu_uncache_read(addr, 4);
+    printf("addr = 0x%x, ret = 0x%x, ret_uncache = 0x%x\n", addr, ret, ret_uncache);
     assert(ret == ret_uncache);
   }
 }
