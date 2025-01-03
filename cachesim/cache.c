@@ -51,15 +51,6 @@ int line_choose(uintptr_t addr,uint32_t group_index,uint32_t tag){
     return replace_index;
 }
 
-int find(uint32_t group_index,uint32_t tag){
-  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
-      if(cachearr[i].tag==tag&&cachearr[i].validbit==true)  
-        return i;
-  }
-  return -1;
-}
-
-
 uint32_t cache_read(uintptr_t addr) {
   uint32_t tag=addr>>(group_nums_size+BLOCK_WIDTH);
   uint32_t group_index=(addr>>BLOCK_WIDTH)&((1<<group_nums_size)-1);
