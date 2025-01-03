@@ -88,10 +88,10 @@ void init_cache(int total_size_width, int associativity_width) {
   for(int i=0;i<exp2(group_num_width)*associativity_size;i++) {
     cachearr[i].validbit=false;
     cachearr[i].dirtybit=false;
-    cachearr[i].tag=0;
-    for(int j=0;j<BLOCK_SIZE;j++) {
-      cachearr[i].data[j]=0;
-    }
+    //cachearr[i].tag=0;
+    //for(int j=0;j<BLOCK_SIZE;j++) {
+      //cachearr[i].data[j]=0;
+    //}
   }
 }
 
