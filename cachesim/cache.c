@@ -113,7 +113,7 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
 
 void init_cache(int total_size_width, int associativity_width) {
   printf("%d",16);
-  printf("%d",BLOCK_SIZE);
+  printf("%d",BLOCK_SIZE>>2);
   associativity_size=associativity_width;
   assert(total_size_width > associativity_width);
   group_nums_size=total_size_width-BLOCK_WIDTH-associativity_width;
