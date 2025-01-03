@@ -9,13 +9,13 @@ uint64_t group_nums_size=0;
 
 void cycle_increase(int n) { cycle_cnt += n; }
 
-printf("%d",BLOCK_SIZE);
+
 typedef struct 
 {
   bool valid;
   bool change;
   uint32_t tag;
-  uint32_t data[BLOCK_SIZE>>2];
+  uint32_t data[16];
 }Cache;
 
 static Cache *cache;
@@ -112,6 +112,8 @@ void cache_write(uintptr_t addr, uint32_t data, uint32_t wmask) {
 
 
 void init_cache(int total_size_width, int associativity_width) {
+  printf("%d",16);
+  printf("%d",BLOCK_SIZE);
   associativity_size=associativity_width;
   assert(total_size_width > associativity_width);
   group_nums_size=total_size_width-BLOCK_WIDTH-associativity_width;
