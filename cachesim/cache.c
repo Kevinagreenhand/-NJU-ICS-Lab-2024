@@ -13,12 +13,23 @@ typedef struct {
   bool validbit;
   bool dirty;
   uint64_t tag;
-  uint32_t data[BLOCK_SIZE>>2];
+  uint8_t data[BLOCK_SIZE];
 } ACacheLine;
 
 ACacheLine* cachearr;
 static uint64_t associativity_size=0;
 static uint64_t group_num_width=0;
+static uint64_t random_replace_a_line(uint64_t addr,uint64_t group_index,uint64_t tag){
+  for(int i=group_index*associativity_size;i<(group_index+1)*associativity_size;i++){
+    if (cachearr[i].validbit==false){
+      cachearr[i].validbit=true;
+      cachearr[i].tag=tag;
+      mem_read(addr>>BLOCK_WIDTH,(uint8_t*)(cachearr[i].data));//mem_read接收
+
+      return i;
+    }
+  }
+}
 uint32_t cache_read(uintptr_t addr) {
   uint64_t tag=addr>>(group_num_width+BLOCK_WIDTH);
   uint64_t temp=(1<<group_num_width)-1;
@@ -47,11 +58,10 @@ void init_cache(int total_size_width, int associativity_width) {
   group_num_width = total_size_width - associativity_width-BLOCK_SIZE;
   cachearr = (ACacheLine*)malloc(exp2(group_num_width)*associativity_size*sizeof(ACacheLine));
   for(int i=0;i<exp2(group_num_width)*associativity_size;i++) {
-    //在把validbit设置为false的同时，进行了一定的初始化。
     cachearr[i].validbit=false;
     cachearr[i].dirty=false;
     cachearr[i].tag=0;
-    for(int j=0;j<BLOCK_SIZE>>2;j++) {
+    for(int j=0;j<BLOCK_SIZE;j++) {
       cachearr[i].data[j]=0;
     }
   }
