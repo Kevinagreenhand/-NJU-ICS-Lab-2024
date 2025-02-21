@@ -1,6 +1,6 @@
-STUID=231098216
-STUNAME=田博文
-export TOKEN=fwoQWPF4
+STUID=已删除
+STUNAME=已删除
+export TOKEN=已删除
 NAME := $(shell basename $(PWD))
 export MODULE := Lab4
 all: $(NAME)-64
